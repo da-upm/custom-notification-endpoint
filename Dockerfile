@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.11
 
 COPY requirements.txt /srv/requirements.txt
 COPY main.py /srv/main.py
