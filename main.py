@@ -9,15 +9,16 @@ api = Api(app)
 
 
 parser = reqparse.RequestParser()
-parser.add_argument("host", type=str)
-parser.add_argument("port", type=int)
-parser.add_argument("tls", type=bool)
-parser.add_argument("username", type=str)
-parser.add_argument("password", type=str)
-parser.add_argument("from", type=str)
-parser.add_argument("to", type=str)
-parser.add_argument("subject", type=str)
-parser.add_argument("content", type=str)
+
+#parser.add_argument("host", type=str)
+#parser.add_argument("port", type=int)
+#parser.add_argument("tls", type=bool)
+#parser.add_argument("username", type=str)
+#parser.add_argument("password", type=str)
+#parser.add_argument("from", type=str)
+#parser.add_argument("to", type=str)
+#parser.add_argument("subject", type=str)
+#parser.add_argument("content", type=str)
 
 
 def mk_msg(toaddr, fromaddr, subj, content):
@@ -65,8 +66,8 @@ class SendEmail(Resource):
         
 class ReceiveAlert(Resource):
     def post(self):
-        args = parser.parse_args(strict=False)
-        print(args)
+        return request.get_json(force=True)
+    
 
 
 api.add_resource(SendEmail, "/send")
