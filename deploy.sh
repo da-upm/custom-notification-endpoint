@@ -6,4 +6,4 @@ if [ "$EUID" -ne 0 ]
 fi
 
 docker build -t cne .
-docker run -d --mount type=bind,src=./data,dst=/srv/data --name cne 
+docker run -d --mount type=bind,src=./data,dst=/srv/data --name cne cne

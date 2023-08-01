@@ -3,6 +3,7 @@ from flask_restful import Resource, Api
 from flask_restful import reqparse, inputs
 from smtplib import SMTP, SMTPException
 from email.message import EmailMessage
+from zoneinfo import ZoneInfo
 import json
 
 from data.constants import *
@@ -56,15 +57,53 @@ class HandleAlert(Resource):
             if args[key] is None:
                 return msg, 400
             
-        messageBody = f'{args["_message"]} a las {inputs.datetime_from_iso8601(args["_time"]).astimezone()}.'
+        messageBody = f'{args["_message"]} a las {inputs.datetime_from_iso8601(args["_time"]).astimezone(ZoneInfo("Europe/Madrid"))}.'
 
-        with open('./data/history.log', 'a') as file:
-            file.write(messageBody)
+        with open('/srv/data/history.log', 'a') as file:
+            file.write(messageBody + '\n')
         
         if (SMTP_HOST is not None and SMTP_HOST != "") and (SMTP_USER is not None and SMTP_USER != "") and (SMTP_PASS is not None and SMTP_PASS != "") and (SMTP_FROM is not None and SMTP_FROM != "") and (SMTP_PORT is not None) and (USE_TLS is not None) and (RECIPIENTS is not None and SMTP_HOST != []):
             send_email(args["_check_name"], messageBody, args["engine_host"])
 
+class HandleTest(Resource):
+    def get(self):
+        if (SMTP_HOST is not None and SMTP_HOST != "") and (SMTP_USER is not None and SMTP_USER != "") and (SMTP_PASS is not None and SMTP_PASS != "") and (SMTP_FROM is not None and SMTP_FROM != "") and (SMTP_PORT is not None) and (USE_TLS is not None) and (RECIPIENTS is not None and SMTP_HOST != []):
+            try:
+                with SMTP(host=SMTP_HOST, port=SMTP_PORT) as s:
+                    if USE_TLS:
+                        s.starttls()
+                    s.login(SMTP_USER, SMTP_PASS)
+                    msg = mk_msg(
+                        ', '.join(RECIPIENTS),
+                        f'{SMTP_FROM} <{SMTP_USER}>',
+                        "Custom Notification Endpoint Test",
+                        "Si recibes este mensaje, el endpoint está configurado correctamente :).",
+                    )
+                    s.send_message(msg, SMTP_USER)
+                    return "Message sent", 201
+            except SMTPException as e:
+                return str(e), 400
+            
+    def post(self):
+        if (SMTP_HOST is not None and SMTP_HOST != "") and (SMTP_USER is not None and SMTP_USER != "") and (SMTP_PASS is not None and SMTP_PASS != "") and (SMTP_FROM is not None and SMTP_FROM != "") and (SMTP_PORT is not None) and (USE_TLS is not None) and (RECIPIENTS is not None and SMTP_HOST != []):
+            try:
+                with SMTP(host=SMTP_HOST, port=SMTP_PORT) as s:
+                    if USE_TLS:
+                        s.starttls()
+                    s.login(SMTP_USER, SMTP_PASS)
+                    msg = mk_msg(
+                        ', '.join(RECIPIENTS),
+                        f'{SMTP_FROM} <{SMTP_USER}>',
+                        "Custom Notification Endpoint Test",
+                        json.dumps(request.get_json(force=True)),
+                    )
+                    s.send_message(msg, SMTP_USER)
+                    return "Message sent", 201
+            except SMTPException as e:
+                return str(e), 400
+
 api.add_resource(HandleAlert, "/alert")
+api.add_resource(HandleTest, "/test")
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=3000)
