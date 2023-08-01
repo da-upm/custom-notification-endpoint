@@ -5,6 +5,6 @@ COPY main.py /srv/main.py
 
 RUN pip3 install -r /srv/requirements.txt
 
-EXPOSE 5000
+EXPOSE 3000
 
 ENTRYPOINT python3 /srv/main.py
