@@ -59,7 +59,7 @@ class HandleAlert(Resource):
             
         messageBody = f'{args["_message"]} a las {inputs.datetime_from_iso8601(args["_time"]).astimezone(ZoneInfo("Europe/Madrid"))}.'
 
-        with open('/srv/data/history.log', 'a') as file:
+        with open('./data/history.log', 'a') as file:
             file.write(messageBody + '\n')
         
         if (SMTP_HOST is not None and SMTP_HOST != "") and (SMTP_USER is not None and SMTP_USER != "") and (SMTP_PASS is not None and SMTP_PASS != "") and (SMTP_FROM is not None and SMTP_FROM != "") and (SMTP_PORT is not None) and (USE_TLS is not None) and (RECIPIENTS is not None and SMTP_HOST != []):
